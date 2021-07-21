@@ -9,7 +9,7 @@ import (
 func HeadersPrint(headers []kafka.Header) {
 	fmt.Printf("headers print begin \n")
 	for _, header := range headers {
-		fmt.Printf("key: %s, value: %s \n", header.Key, string(header.Value))
+		fmt.Printf("%s: %s \n", header.Key, string(header.Value))
 	}
 	fmt.Printf("headers print finish \n")
 	return
