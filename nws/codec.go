@@ -12,7 +12,8 @@ func EncodeNodeSocketIO(b []byte) []byte {
 }
 
 func EncodeNodeSocketIOEmit(typ string, b []byte) []byte {
-	return []byte(fmt.Sprintf(`["%s", %s]`, typ, string(b)))
+	out := fmt.Sprintf(`["%s",%s]`, typ, string(b))
+	return []byte(fmt.Sprintf("%d%s", len(out), out))
 }
 
 var reg = regexp.MustCompile(`[0-9]*?[a-z]*?\s*,?({.*})]?`)

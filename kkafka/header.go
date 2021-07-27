@@ -49,3 +49,13 @@ func HeadersAdd(headers []kafka.Header, key string, val []byte) []kafka.Header {
 	}
 	return headers
 }
+
+func HeadersBatchAdd(headers []kafka.Header, needAddHeaders []kafka.Header) []kafka.Header {
+	newHeadersMap := Headers2Map(needAddHeaders)
+	for _, h := range headers {
+		if _, ok := newHeadersMap[h.Key]; !ok {
+			needAddHeaders = append(needAddHeaders, h)
+		}
+	}
+	return needAddHeaders
+}
