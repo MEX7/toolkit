@@ -7,13 +7,13 @@ import (
 	"regexp"
 )
 
-func EncodeNodeSocketIO(b []byte) []byte {
-	return EncodeNodeSocketIOEmit("message", b)
+func EncodeNodeSocketIO(code int, b []byte) []byte {
+	return EncodeNodeSocketIOEmit("message", code, b)
 }
 
-func EncodeNodeSocketIOEmit(typ string, b []byte) []byte {
+func EncodeNodeSocketIOEmit(typ string, code int, b []byte) []byte {
 	out := fmt.Sprintf(`["%s",%s]`, typ, string(b))
-	return []byte(fmt.Sprintf("%d%s", len(out), out))
+	return []byte(fmt.Sprintf("%d%s", code, out))
 }
 
 var reg = regexp.MustCompile(`[0-9]*?[a-z]*?\s*,?({.*})]?`)
