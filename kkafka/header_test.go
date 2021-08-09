@@ -4,24 +4,24 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/segmentio/kafka-go"
+	k "github.com/segmentio/kafka-go"
 )
 
 func TestHeadersBatchAdd(t *testing.T) {
 	type args struct {
-		headers        []kafka.Header
-		needAddHeaders []kafka.Header
+		headers        []k.Header
+		needAddHeaders []k.Header
 	}
 	tests := []struct {
 		name string
 		args args
-		want []kafka.Header
+		want []k.Header
 	}{
 		// TODO: Add test cases.
 		{
 			name: "test-1",
 			args: args{
-				headers: []kafka.Header{{
+				headers: []k.Header{{
 					Key:   "A",
 					Value: nil,
 				}, {
@@ -31,7 +31,7 @@ func TestHeadersBatchAdd(t *testing.T) {
 					Key:   "C",
 					Value: nil,
 				}},
-				needAddHeaders: []kafka.Header{{
+				needAddHeaders: []k.Header{{
 					Key:   "A",
 					Value: nil,
 				}, {
@@ -42,7 +42,7 @@ func TestHeadersBatchAdd(t *testing.T) {
 					Value: nil,
 				}},
 			},
-			want: []kafka.Header{{
+			want: []k.Header{{
 				Key:   "A",
 				Value: nil,
 			}, {
