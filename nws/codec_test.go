@@ -4,6 +4,12 @@ import (
 	"testing"
 )
 
+func BenchmarkDecodeNodeSocketIO(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		_, _, _ = DecodeNodeSocketIO([]byte(`42["message",{"type":"test-a","data":{"type":"test-b"}}]`))
+	}
+}
+
 func TestDecodeNodeSocketIO(t *testing.T) {
 	type args struct {
 		in []byte

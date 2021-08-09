@@ -1,7 +1,6 @@
 package nws
 
 import (
-	"encoding/json"
 	"errors"
 	"fmt"
 	"regexp"
@@ -24,7 +23,8 @@ func DecodeNodeSocketIO(in []byte) (content string, typ string, err error) {
 		return "", "", errors.New("rule mismatch")
 	}
 	var res CompatMsg
-	err = json.Unmarshal([]byte(fss[1]), &res)
+	err = res.UnmarshalJSON([]byte(fss[1]))
+	// err = json.Unmarshal([]byte(fss[1]), &res)
 	if err != nil {
 		return
 	}
