@@ -7,7 +7,7 @@ func Union(slice1, slice2 []string) []string {
 		m[v]++
 	}
 	for _, v := range slice2 {
-		times, _ := m[v]
+		times := m[v]
 		if times == 0 {
 			slice1 = append(slice1, v)
 		}
@@ -23,7 +23,7 @@ func Intersect(slice1, slice2 []string) []string {
 		m[v]++
 	}
 	for _, v := range slice2 {
-		times, _ := m[v]
+		times := m[v]
 		if times == 1 {
 			nn = append(nn, v)
 		}
