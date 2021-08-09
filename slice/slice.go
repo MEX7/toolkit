@@ -40,7 +40,7 @@ func Difference(slice1, slice2 []string) []string {
 		m[v]++
 	}
 	for _, value := range slice1 {
-		times, _ := m[value]
+		times := m[value]
 		if times == 0 {
 			nn = append(nn, value)
 		}
