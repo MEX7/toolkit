@@ -6,13 +6,19 @@ import (
 	"regexp"
 )
 
-func EncodeNodeSocketIO(code int, b []byte) []byte {
-	return EncodeNodeSocketIOEmit("message", code, b)
+func EncodeNodeSocketIO(fc, sc int, b []byte) []byte {
+	return EncodeNodeSocketIOEmit("message", fc, sc, b)
 }
 
-func EncodeNodeSocketIOEmit(typ string, code int, b []byte) []byte {
+func EncodeNodeSocketIOEmit(typ string, fc, sc int, b []byte) []byte {
 	out := fmt.Sprintf(`["%s",%s]`, typ, string(b))
-	return []byte(fmt.Sprintf("%d%s", code, out))
+	var code string
+	if sc != -1 {
+		code = fmt.Sprintf("%d%d", fc, sc)
+	} else {
+		code = fmt.Sprintf("%d", fc)
+	}
+	return []byte(fmt.Sprintf("%s%s", code, out))
 }
 
 var reg = regexp.MustCompile(`[0-9]*?[a-z]*?\s*,?({.*})]?`)
@@ -24,7 +30,6 @@ func DecodeNodeSocketIO(in []byte) (content string, typ string, err error) {
 	}
 	var res CompatMsg
 	err = res.UnmarshalJSON([]byte(fss[1]))
-	// err = json.Unmarshal([]byte(fss[1]), &res)
 	if err != nil {
 		return
 	}
