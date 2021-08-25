@@ -7,4 +7,5 @@ require (
 	github.com/mailru/easyjson v0.7.7
 	github.com/segmentio/kafka-go v0.4.17
 	k8s.io/api v0.21.2
+	k8s.io/apimachinery v0.21.2
 )
