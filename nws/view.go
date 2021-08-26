@@ -5,8 +5,9 @@ import (
 )
 
 type CompatMsg struct {
-	Type string      `json:"type"`
-	Data interface{} `json:"data,omitempty" `
+	Type  string      `json:"type,omitempty"`
+	Event string      `json:"event,omitempty"`
+	Data  interface{} `json:"data,omitempty"`
 }
 
 func (c CompatMsg) JSON() []byte {
