@@ -20,3 +20,7 @@ const (
 	ScBinaryEvent = 5
 	ScBinaryAck   = 6
 )
+
+const (
+	EventMessage = "message"
+)

@@ -6,11 +6,7 @@ import (
 	"regexp"
 )
 
-func EncodeNodeSocketIO(fc, sc int, b []byte) []byte {
-	return EncodeNodeSocketIOEmit("message", fc, sc, b)
-}
-
-func EncodeNodeSocketIOEmit(typ string, fc, sc int, b []byte) []byte {
+func EncodeNodeSocketIO(typ string, fc, sc int, b []byte) []byte {
 	out := fmt.Sprintf(`["%s",%s]`, typ, string(b))
 	var code string
 	if sc != -1 {
@@ -28,7 +24,7 @@ func DecodeNodeSocketIO(in []byte) (content string, typ string, err error) {
 	if len(fss) != 2 {
 		return "", "", errors.New("rule mismatch")
 	}
-	var res CompatMsg
+	var res CompatMsgDataItem
 	err = res.UnmarshalJSON([]byte(fss[1]))
 	if err != nil {
 		return
