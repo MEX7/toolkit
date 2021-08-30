@@ -2,6 +2,7 @@ package kmap
 
 import (
 	"fmt"
+	"reflect"
 	"strconv"
 	"strings"
 )
@@ -32,6 +33,10 @@ func Kv2MapInt(in []Kv) (out map[int]int) {
 			out[keyInt] = valInt
 		case int:
 			out[item.Key.(int)] = item.Value.(int)
+		case float64:
+			out[int(item.Key.(float64))] = int(item.Value.(float64))
+		default:
+			fmt.Printf("Kv2MapInt not supports type is: %s", reflect.TypeOf(item.Key).Name())
 		}
 	}
 	return
@@ -48,9 +53,9 @@ func KvFormat(in []Kv) string {
 			v = item.Value.(string)
 		}
 		if out == "" {
-			out = fmt.Sprintf("%s,%s", k, v)
+			out = fmt.Sprintf("%s:%s", k, v)
 		} else {
-			out = fmt.Sprintf("%s:%s:%s", out, k, v)
+			out = fmt.Sprintf("%s,%s:%s", out, k, v)
 		}
 	}
 	return out

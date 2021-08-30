@@ -40,3 +40,35 @@ func TestKvUnFormat(t *testing.T) {
 		})
 	}
 }
+
+func TestKv2MapInt(t *testing.T) {
+	type args struct {
+		in []Kv
+	}
+	tests := []struct {
+		name    string
+		args    args
+		wantOut map[int]int
+	}{
+		// TODO: Add test cases.
+		{
+			name: "test-1",
+			args: args{
+				in: []Kv{
+					{
+						Key:   2,
+						Value: 1,
+					},
+				},
+			},
+			wantOut: map[int]int{2: 1},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if gotOut := Kv2MapInt(tt.args.in); !reflect.DeepEqual(gotOut, tt.wantOut) {
+				t.Errorf("Kv2MapInt() = %v, want %v", gotOut, tt.wantOut)
+			}
+		})
+	}
+}
