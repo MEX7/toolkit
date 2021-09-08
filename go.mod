@@ -8,4 +8,5 @@ require (
 	github.com/mailru/easyjson v0.7.7
 	github.com/segmentio/kafka-go v0.4.17
 	golang.org/x/sys v0.0.0-20210426230700-d19ff857e887 // indirect
+	gopkg.in/yaml.v3 v3.0.0-20200313102051-9f266ea9e77c // indirect
 )

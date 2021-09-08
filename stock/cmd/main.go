@@ -38,6 +38,7 @@ func main() {
 
 	fmt.Printf("网格总数：%d, 下方网格：%d, 上方网格：%d\n", ups+downs, downs, ups)
 	fmt.Printf("底仓数量：%d, 买入成本：%d, 预留资金：%d \n", ups*int(num), cost, reserved)
-	fmt.Printf("网格收益 %.2f%%~%.2f%%", (high-now)*100/(2*now), (high-now)*100/now)
+	fmt.Printf("收益分布 %.2f%%~%.2f%%", (high-now)*100/(2*now), (high-now)*100/now)
+	fmt.Printf("亏损风险 %.2f%%~%.2f%%", (now-low)*100/now, (now-low)*100*3/(2*now))
 
 }
