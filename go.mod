@@ -3,6 +3,7 @@ module github.com/kl7sn/toolkit
 go 1.16
 
 require (
+	github.com/gin-gonic/gin v1.7.4 // indirect
 	github.com/go-redis/redis/v8 v8.11.3
 	github.com/kr/text v0.2.0 // indirect
 	github.com/mailru/easyjson v0.7.7
