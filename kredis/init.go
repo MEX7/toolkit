@@ -7,40 +7,44 @@ import (
 	"github.com/go-redis/redis/v8"
 )
 
-var Subscribe *subscribe
+var subscribes = make([]*Subscribe, 0)
 
-type subscribe struct {
+type Subscribe struct {
 	DbRedis  *redis.Client
 	channels map[string]*redis.PubSub
 }
 
 // Init 全局 Subscribe 初始化
-func Init(ctx context.Context, client *redis.Client, channels map[string]func(ctx context.Context, pubSub *redis.PubSub)) {
-	Subscribe = &subscribe{
+func Init(ctx context.Context, client *redis.Client, channels map[string]func(ctx context.Context, pubSub *redis.PubSub)) *Subscribe {
+	s := &Subscribe{
 		DbRedis:  client,
 		channels: make(map[string]*redis.PubSub),
 	}
 	for channel, fc := range channels {
-		ps := Subscribe.Sub(ctx, channel)
-		Subscribe.channels[channel] = ps
+		ps := s.Sub(ctx, channel)
+		s.channels[channel] = ps
 		go fc(ctx, ps)
 	}
+	subscribes = append(subscribes, s)
+	return s
 }
 
 // Close 消息订阅关闭
 func Close() error {
-	if Subscribe == nil {
-		return nil
+	for _, s:= range subscribes{
+		if s == nil {
+			continue
+		}
+		for _, pubSub := range s.channels {
+			_ = pubSub.Close()
+		}
+		_ = s.DbRedis.Close()
 	}
-	for _, pubSub := range Subscribe.channels {
-		_ = pubSub.Close()
-	}
-	_ = Subscribe.DbRedis.Close()
 	return nil
 }
 
 // Sub 订阅
-func (s *subscribe) Sub(ctx context.Context, channel string) *redis.PubSub {
+func (s *Subscribe) Sub(ctx context.Context, channel string) *redis.PubSub {
 	var err error
 	pubSub := s.DbRedis.Subscribe(ctx, channel)
 	_, err = pubSub.Receive(ctx)
@@ -51,7 +55,7 @@ func (s *subscribe) Sub(ctx context.Context, channel string) *redis.PubSub {
 }
 
 // Pub 发布
-func (s *subscribe) Pub(ctx context.Context, channel string, message []byte) error {
+func (s *Subscribe) Pub(ctx context.Context, channel string, message []byte) error {
 	var err error
 	err = s.DbRedis.Publish(ctx, channel, message).Err()
 	if err != nil {
