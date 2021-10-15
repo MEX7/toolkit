@@ -19,8 +19,11 @@ func EncodeNodeSocketIO(typ string, fc, sc int, b []byte) []byte {
 
 var reg = regexp.MustCompile(`[0-9]*?[a-z]*?\s*,?({.*})]?`)
 
-func DecodeNodeSocketIO(in []byte) (content string, typ string, err error) {
-	fss := reg.FindStringSubmatch(string(in))
+func DecodeNodeSocketIO(in []byte,r *regexp.Regexp) (content string, typ string, err error) {
+	if r == nil {
+		r = reg
+	}
+	fss := r.FindStringSubmatch(string(in))
 	if len(fss) != 2 {
 		return "", "", errors.New("rule mismatch")
 	}
