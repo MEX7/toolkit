@@ -2,7 +2,6 @@ package kredis
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/go-redis/redis/v8"
 )
@@ -31,7 +30,7 @@ func Init(ctx context.Context, client *redis.Client, channels map[string]func(ct
 
 // Close 消息订阅关闭
 func Close() error {
-	for _, s:= range subscribes{
+	for _, s := range subscribes {
 		if s == nil {
 			continue
 		}
@@ -54,13 +53,13 @@ func (s *Subscribe) Sub(ctx context.Context, channel string) *redis.PubSub {
 	return pubSub
 }
 
-// Pub 发布
-func (s *Subscribe) Pub(ctx context.Context, channel string, message []byte) error {
-	var err error
-	err = s.DbRedis.Publish(ctx, channel, message).Err()
-	if err != nil {
-		fmt.Printf("subscribe error: %s", err.Error())
-		return err
-	}
-	return nil
-}
+//// Pub 发布
+//func (s *Subscribe) Pub(ctx context.Context, channel string, message []byte) error {
+//	var err error
+//	err = s.DbRedis.Publish(ctx, channel, message).Err()
+//	if err != nil {
+//		fmt.Printf("subscribe error: %s", err.Error())
+//		return err
+//	}
+//	return nil
+//}
