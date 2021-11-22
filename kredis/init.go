@@ -6,7 +6,7 @@ import (
 	"github.com/go-redis/redis/v8"
 )
 
-var subscribes = make([]*Subscribe, 0)
+var Subscribes = make([]*Subscribe, 0)
 
 type Subscribe struct {
 	DbRedis  *redis.Client
@@ -24,13 +24,13 @@ func Init(ctx context.Context, client *redis.Client, channels map[string]func(ct
 		s.channels[channel] = ps
 		go fc(ctx, ps)
 	}
-	subscribes = append(subscribes, s)
+	Subscribes = append(Subscribes, s)
 	return s
 }
 
 // Close 消息订阅关闭
 func Close() error {
-	for _, s := range subscribes {
+	for _, s := range Subscribes {
 		if s == nil {
 			continue
 		}
