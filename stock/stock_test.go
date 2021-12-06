@@ -41,7 +41,7 @@ func TestLogX(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if gotN := LogX(tt.args.bef, tt.args.end); gotN != tt.wantN {
+			if gotN := ReMult(tt.args.bef, tt.args.end, 1); gotN != tt.wantN {
 				t.Errorf("LogX() = %v, want %v", gotN, tt.wantN)
 			}
 		})

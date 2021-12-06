@@ -10,7 +10,7 @@ var (
 	ErrBind             = &KError{Code: 10002, Message: "Error occurred while binding the request body to the struct."}
 )
 
-// Errno 定义错误码
+// KError 定义错误码
 type KError struct {
 	Code    int
 	Message string
@@ -55,6 +55,5 @@ func DecodeErr(err error) (int, string) {
 		return typed.Code, typed.Message
 	default:
 	}
-
 	return InternalServerError.Code, err.Error()
 }
