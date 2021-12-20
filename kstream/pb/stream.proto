@@ -1,0 +1,23 @@
+syntax = "proto3";
+
+package stream;
+option go_package = "./;pb";
+
+service Stream {
+    rpc Cell (stream CellReq) returns (stream CellResp);
+}
+
+// CellReq 新增连接信息通知
+message CellReq
+{
+    uint32 msgId = 1;
+    bytes msg = 2;
+    map<string, bytes> headers = 3;
+}
+
+message CellResp
+{
+    uint32 code = 1;
+    uint32 msgId = 2;
+    bytes msg = 3;
+}
