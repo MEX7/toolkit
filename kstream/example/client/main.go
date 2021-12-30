@@ -22,7 +22,7 @@ func main() {
 	}
 	defer conn.Close()
 	c := pb.NewStreamClient(conn)
-	p = kstream.InitStream(c, callback, true)
+	p = kstream.InitStream(c)
 	select {}
 }
 

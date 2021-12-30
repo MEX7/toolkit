@@ -10,7 +10,6 @@ import (
 	"google.golang.org/grpc/status"
 
 	"github.com/kl7sn/toolkit/kstream/pb"
-	"github.com/kl7sn/toolkit/xgo"
 )
 
 type Callback func(reply *pb.CellResp)
@@ -22,61 +21,66 @@ const (
 	MsgWorkerHeartBeatResp = 1003
 )
 
+const ()
+
 type ProxyStream struct {
 	sync.Mutex
 	stream  pb.Stream_CellClient
 	msgChan chan *pb.CellReq
+	client  pb.StreamClient
 }
 
-func InitStream(client pb.StreamClient, callback Callback, isRead bool) *ProxyStream {
-	obj := &ProxyStream{msgChan: make(chan *pb.CellReq, 1000)}
-	obj.PushChan(&pb.CellReq{MsgId: MsgConnectReq})
-	obj.sync(client, callback, isRead)
+func InitStream(client pb.StreamClient) *ProxyStream {
+	obj := &ProxyStream{
+		msgChan: make(chan *pb.CellReq, 1000),
+		client:  client,
+	}
 	return obj
+}
+
+func (p *ProxyStream) Write(data *pb.CellReq) {
+	_ = p.GetStream(p.client).Send(data)
 }
 
 func (p *ProxyStream) PushChan(info *pb.CellReq) {
 	p.msgChan <- info
 }
-func (p *ProxyStream) sync(client pb.StreamClient, callback Callback, isRead bool) {
-	if isRead {
-		xgo.Go(func() {
-			var (
-				reply *pb.CellResp
-				err   error
-			)
-			for {
-				reply, err = p.GetStream(client).Recv()
-				if err != nil {
-					replyStatus, _ := status.FromError(err)
-					if replyStatus.Code() == codes.Unavailable {
-						fmt.Println("与服务器的连接被断开, 进行重试")
-						fmt.Println("Receive reply error:", err.Error())
-						p.DelStream()
-						continue
-					}
-					continue
-				}
-				if reply.Code != 0 {
-					fmt.Println("Receive reply code is not 0:", reply.Code)
-					continue
-				}
-				callback(reply)
-			}
-		})
-	}
 
-	xgo.Go(func() {
-		var err error
-		for {
-			data := <-p.msgChan
-			err = p.GetStream(client).Send(data)
-			if err != nil {
-				fmt.Println("Send err:", err.Error())
+func (p *ProxyStream) SingleThreadRead(callback Callback) {
+	var (
+		reply *pb.CellResp
+		err   error
+	)
+	for {
+		reply, err = p.GetStream(p.client).Recv()
+		if err != nil {
+			replyStatus, _ := status.FromError(err)
+			if replyStatus.Code() == codes.Unavailable {
+				fmt.Println("与服务器的连接被断开, 进行重试")
+				fmt.Println("Receive reply error:", err.Error())
+				p.DelStream()
 				continue
 			}
+			continue
 		}
-	})
+		if reply.Code != 0 {
+			fmt.Println("Receive reply code is not 0:", reply.Code)
+			continue
+		}
+		callback(reply)
+	}
+}
+
+func (p *ProxyStream) SingleThreadWrite() {
+	var err error
+	for {
+		data := <-p.msgChan
+		err = p.GetStream(p.client).Send(data)
+		if err != nil {
+			fmt.Println("Send err:", err.Error())
+			continue
+		}
+	}
 }
 
 func (p *ProxyStream) DelStream() {
