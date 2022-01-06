@@ -97,12 +97,12 @@ func (p *ProxyStream) GetStream(client pb.StreamClient) pb.Stream_CellClient {
 	for {
 		stream, err := client.Cell(ctx)
 		if err != nil {
-			fmt.Println("stream error: ", err.Error())
+			// fmt.Println("stream error: ", err.Error())
 			time.Sleep(time.Second)
 			continue
 		}
 		p.stream = stream
-		fmt.Println("stream connect: ", time.Now().Unix())
+		fmt.Println("stream reconnect: ", time.Now().Unix())
 		break
 	}
 	return p.stream
