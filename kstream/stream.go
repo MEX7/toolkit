@@ -10,6 +10,7 @@ import (
 	"google.golang.org/grpc/status"
 
 	"github.com/kl7sn/toolkit/kstream/pb"
+	"github.com/kl7sn/toolkit/xgo"
 )
 
 type Callback func(reply *pb.CellResp)
@@ -21,6 +22,14 @@ const (
 	MsgWorkerHeartBeatResp = 1003
 )
 
+type ModelType int
+
+const (
+	ModelTypeOnlyWrite ModelType = iota + 1
+	ModelTypeOnlyRead
+	ModelTypeBoth
+)
+
 type ProxyStream struct {
 	sync.Mutex
 	stream  pb.Stream_CellClient
@@ -28,10 +37,19 @@ type ProxyStream struct {
 	client  pb.StreamClient
 }
 
-func InitStream(client pb.StreamClient) *ProxyStream {
+func InitStream(client pb.StreamClient, model ModelType, callback Callback) *ProxyStream {
 	obj := &ProxyStream{
 		msgChan: make(chan *pb.CellReq, 5000),
 		client:  client,
+	}
+	switch model {
+	case ModelTypeBoth:
+		obj.writer()
+		obj.reader(callback)
+	case ModelTypeOnlyRead:
+		obj.reader(callback)
+	case ModelTypeOnlyWrite:
+		obj.writer()
 	}
 	return obj
 }
@@ -40,40 +58,44 @@ func (p *ProxyStream) PushChan(info *pb.CellReq) {
 	p.msgChan <- info
 }
 
-func (p *ProxyStream) Read(callback Callback) {
+func (p *ProxyStream) reader(callback Callback) {
 	var (
 		reply *pb.CellResp
 		err   error
 	)
-	for {
-		reply, err = p.GetStream(p.client).Recv()
-		if err != nil {
-			replyStatus, _ := status.FromError(err)
-			if replyStatus.Code() == codes.Unavailable {
-				fmt.Println("与服务器的连接被断开, 进行重试")
-				fmt.Println("Receive reply error:", err.Error())
-				p.DelStream()
+	xgo.Go(func() {
+		for {
+			reply, err = p.GetStream(p.client).Recv()
+			if err != nil {
+				replyStatus, _ := status.FromError(err)
+				if replyStatus.Code() == codes.Unavailable {
+					fmt.Println("与服务器的连接被断开, 进行重试")
+					fmt.Println("Receive reply error:", err.Error())
+					p.DelStream()
+					continue
+				}
 				continue
 			}
-			continue
+			if reply.Code != 0 {
+				fmt.Println("Receive reply code is not 0:", reply.Code)
+				continue
+			}
+			callback(reply)
 		}
-		if reply.Code != 0 {
-			fmt.Println("Receive reply code is not 0:", reply.Code)
-			continue
-		}
-		callback(reply)
-	}
+	})
 }
 
-func (p *ProxyStream) Writer() {
-	for {
-		data := <-p.msgChan
-		err := p.GetStream(p.client).Send(data)
-		if err != nil {
-			fmt.Println("Send err:", err.Error())
-			continue
+func (p *ProxyStream) writer() {
+	xgo.Go(func() {
+		for {
+			data := <-p.msgChan
+			err := p.GetStream(p.client).Send(data)
+			if err != nil {
+				fmt.Println("Send err:", err.Error())
+				continue
+			}
 		}
-	}
+	})
 }
 
 func (p *ProxyStream) DelStream() {
