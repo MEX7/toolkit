@@ -10,7 +10,6 @@ import (
 	"google.golang.org/grpc/status"
 
 	"github.com/kl7sn/toolkit/kstream/pb"
-	"github.com/kl7sn/toolkit/xgo"
 )
 
 type Callback func(reply *pb.CellResp)
@@ -31,7 +30,7 @@ type ProxyStream struct {
 
 func InitStream(client pb.StreamClient) *ProxyStream {
 	obj := &ProxyStream{
-		msgChan: make(chan *pb.CellReq, 10000),
+		msgChan: make(chan *pb.CellReq, 5000),
 		client:  client,
 	}
 	return obj
@@ -41,7 +40,7 @@ func (p *ProxyStream) PushChan(info *pb.CellReq) {
 	p.msgChan <- info
 }
 
-func (p *ProxyStream) SingleThreadRead(callback Callback) {
+func (p *ProxyStream) Read(callback Callback) {
 	var (
 		reply *pb.CellResp
 		err   error
@@ -66,18 +65,14 @@ func (p *ProxyStream) SingleThreadRead(callback Callback) {
 	}
 }
 
-func (p *ProxyStream) WriterPool(workers int) {
-	for i := 0; i < workers; i++ {
-		xgo.Go(func() {
-			for {
-				data := <-p.msgChan
-				err := p.GetStream(p.client).Send(data)
-				if err != nil {
-					fmt.Println("Send err:", err.Error())
-					continue
-				}
-			}
-		})
+func (p *ProxyStream) Writer() {
+	for {
+		data := <-p.msgChan
+		err := p.GetStream(p.client).Send(data)
+		if err != nil {
+			fmt.Println("Send err:", err.Error())
+			continue
+		}
 	}
 }
 
@@ -97,13 +92,12 @@ func (p *ProxyStream) GetStream(client pb.StreamClient) pb.Stream_CellClient {
 	for {
 		stream, err := client.Cell(ctx)
 		if err != nil {
-			// fmt.Println("stream error: ", err.Error())
+			fmt.Println("stream error: ", err.Error())
 			time.Sleep(time.Second)
-			continue
+		} else {
+			p.stream = stream
+			break
 		}
-		p.stream = stream
-		fmt.Println("stream reconnect: ", time.Now().Unix())
-		break
 	}
 	return p.stream
 }

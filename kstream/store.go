@@ -4,6 +4,7 @@ import (
 	"sync"
 
 	"github.com/gotomicro/ego/core/elog"
+
 	"github.com/kl7sn/toolkit/kstream/pb"
 )
 
@@ -25,7 +26,6 @@ func (s *stores) AddStream(ip string, stream pb.Stream_CellServer) {
 	defer s.Unlock()
 	s.data[ip] = stream
 	elog.Debug("stores", elog.String("ip", ip), elog.String("step", "AddStream"))
-
 }
 
 func (s *stores) GetStream(ip string) pb.Stream_CellServer {

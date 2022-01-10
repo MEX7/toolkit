@@ -12,6 +12,7 @@ import (
 	"github.com/kl7sn/toolkit/knet"
 	"github.com/kl7sn/toolkit/kstream"
 	"github.com/kl7sn/toolkit/kstream/pb"
+	"github.com/kl7sn/toolkit/xgo"
 )
 
 type Greeter struct {
@@ -66,6 +67,9 @@ func (g grpcServer) Cell(stream pb.Stream_CellServer) error {
 			break
 		}
 		elog.Info("cell", elog.Any("req", req))
+		xgo.Go(func() {
+			time.Sleep(time.Millisecond * 10)
+		})
 	}
 	return nil
 }
