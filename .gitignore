@@ -17,7 +17,7 @@ go.sum
 *.key
 *.pem
 
-.ignore/
+.xignore/
 
 *.log
 *.sys
