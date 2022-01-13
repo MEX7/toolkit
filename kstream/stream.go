@@ -93,6 +93,7 @@ func (p *ProxyStream) writer() {
 			err := p.GetStream(p.client).Send(data)
 			if err != nil {
 				if err == io.EOF {
+					p.DelStream()
 					fmt.Println("Send try again:", string(data.GetMsg()))
 				} else {
 					fmt.Println("Send err:", err.Error(), string(data.GetMsg()))
