@@ -3,6 +3,7 @@ package kstream
 import (
 	"context"
 	"fmt"
+	"io"
 	"sync"
 	"time"
 
@@ -91,7 +92,12 @@ func (p *ProxyStream) writer() {
 			data := <-p.msgChan
 			err := p.GetStream(p.client).Send(data)
 			if err != nil {
-				fmt.Println("Send err:", err.Error())
+				if err == io.EOF {
+					fmt.Println("Send try again:", string(data.GetMsg()))
+					p.msgChan <- data
+				} else {
+					fmt.Println("Send err:", err.Error())
+				}
 				continue
 			}
 		}
