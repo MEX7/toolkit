@@ -94,10 +94,10 @@ func (p *ProxyStream) writer() {
 			if err != nil {
 				if err == io.EOF {
 					fmt.Println("Send try again:", string(data.GetMsg()))
-					p.msgChan <- data
 				} else {
-					fmt.Println("Send err:", err.Error())
+					fmt.Println("Send err:", err.Error(), string(data.GetMsg()))
 				}
+				p.msgChan <- data
 				continue
 			}
 		}
